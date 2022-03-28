@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Week 10 - Major Assignment 3</title>
+
+    <script src="./lib/d3.js"></script>
+    <script src="./scripts/scatter_plot.js"></script>
+    <script src="./scripts/bar_plot.js"></script>
+    <script src="./scripts/legend.js"></script>
+    <script src="./scripts/joint_plot.js"></script>
+    <link rel="stylesheet" href="./styles/style.css">  
+</head>
+<body>
+
+<table>
+<tr>
+    <td id="plot1"></td>
+    <td id="plot2"></td>
+</tr>
+<tr>
+    <td id="plot3"></td>
+</tr>
+
+</table>
+
+<script>
+    
+    d3.tsv("../data/palmer_penguin_species.tsv").then(data =>{
+
+        let species = Array.from(new Set(d3.map(data, d => d.species)));
+
+        joint_plot("plot1", species[0], data);
+        joint_plot("plot2", species[1], data);
+        joint_plot("plot3", species[2], data);
+    });
+
+</script>
+
+</body>
+</html>
