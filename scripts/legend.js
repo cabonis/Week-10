@@ -1,4 +1,4 @@
-function legend(id, colors, colorScale) {
+function legend(id, colors, colorScale, title) {
     
     let margin = 20;
     let legendSize = 10 
@@ -9,6 +9,13 @@ function legend(id, colors, colorScale) {
 
     let g = axis.append("g")
         .attr("transform", `translate(${0}, ${height - margin * 2})`);
+
+    axis.append('text')
+        .attr('x', 0)
+        .attr('y', height - 50)
+        .attr("text-anchor","left")
+        .text(title)
+        .attr("class", "legendTitle");
 
     g.selectAll("legendDots")
         .data(colors)

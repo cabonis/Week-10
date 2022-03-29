@@ -1,4 +1,4 @@
-function scatter_plot(x, y, markers, colors, colorScale, id, title="", xLabel="", yLabel="", margin = 100) {
+function scatter_plot(id, x, y, markers, colors, colorScale, title="", xLabel="", yLabel="", margin = 100) {
 
     function data_axis_pad(data,pad=.05){
         return [data[0]-pad*data[0], data[1]+pad*data[1] ]
@@ -49,4 +49,20 @@ function scatter_plot(x, y, markers, colors, colorScale, id, title="", xLabel=""
         .text(title)
         .attr("class","plotTitle");
 
+    return {
+        highlightX: function (extent) {
+            axis.selectAll("circle")
+                .filter((d, i) => extent[0] <= x[i] && x[i] <= extent[1])
+                    .style("fill", "yellow");
+        },
+        highlightY: function(extent) {
+            axis.selectAll("circle")
+                .filter((d, i) => extent[0] <= y[i] && y[i] <= extent[1])
+                    .style("fill", "yellow");
+        },
+        reset: function() {
+            axis.selectAll("circle")
+                .style("fill", (d,i) => colorScale(colors[i]));
+        }
+    };
 }

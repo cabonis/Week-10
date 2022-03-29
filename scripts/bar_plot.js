@@ -1,16 +1,10 @@
-function bar_plot(Values, //column values to make histogram of
-                  bins_count=10, // number of the bins desired
-                  axis_key, // id of the svg
-                  title="", // title of the figure
-                  xLabel="", // xlabel
-                  yLabel="",  //ylabel
-                  margin = 80
-)
-{
-    // assign which SVG element should be the host for the figure
-    let axis = d3.select(`#${axis_key}`)
-    let height= parseInt(axis.attr("height"));
-    let width= parseInt(axis.attr("width"))-margin;
+function bar_plot(id, Values, sync) {
+
+    const margin = 80
+    const bins_count = 10;
+    const axis = d3.select(`#${id}`)    
+    const height= parseInt(axis.attr("height"));
+    const width= parseInt(axis.attr("width"))-margin;
 
     // make a linear scale for the X Axis
     // we will use this for making bins and placing them
@@ -43,21 +37,24 @@ function bar_plot(Values, //column values to make histogram of
         .append('rect')
         .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
         .attr("height", d => height - yScale(d.length))
-        .style("fill", "#509ec8");
+        .on("mouseenter", (m, d) => {
+            if(sync) {
+                sync.highlightX(d3.extent(d));
+            }
+        })
+        .on("mouseout", () => {
+            if(sync) {
+                sync.reset();
+            }
+        })
 }
 
 
-function h_bar_plot(Values, //column values to make histogram of
-                  bins_count=10, // number of the bins desired
-                  axis_key, // id of the svg
-                  title="", // title of the figure
-                  xLabel="", // xlabel
-                  yLabel="",  //ylabel
-                  margin = 80
-)
-{
-    // assign which SVG element should be the host for the figure
-    let axis = d3.select(`#${axis_key}`)
+function h_bar_plot(id, Values, sync) {
+
+    const margin = 80
+    const bins_count = 10;
+    let axis = d3.select(`#${id}`);
     let height= parseInt(axis.attr("height"))-margin;
     let width= parseInt(axis.attr("width"));
 
@@ -66,7 +63,7 @@ function h_bar_plot(Values, //column values to make histogram of
     // Step 1 make y scale to use it's ticks for the histogram
     let yScale= d3.scaleLinear()
         .domain(d3.extent(Values))
-        .range([height,margin])
+        .range([height,margin]);
 
     // step 2 get the histogram data
     let histogram = d3.histogram()
@@ -80,16 +77,7 @@ function h_bar_plot(Values, //column values to make histogram of
     // step 4, now that we have the  bins and their numbers we can make the xscale
     let xScale = d3.scaleLinear()
         .domain([0,d3.max(bins, (d) => d.length)])
-        .range([0,width])
-
-    const ycoords = d3.map(bins, (b) =>{
-        return {
-            x0: b.x0,
-            x1: b.x1,
-            y0: yScale(b.x0),
-            y1: yScale(b.x1)
-        }
-    })
+        .range([0,width]);
 
     // now that we have the scales let us add the bars to the svg
     axis.selectAll('.bars')
@@ -101,5 +89,14 @@ function h_bar_plot(Values, //column values to make histogram of
         .append('rect') // width of the bar is equal to the length of elements in the bin
         .attr("width", d => xScale(d.length))
         .attr("height", d => yScale(d.x0) - yScale(d.x1) - 1)
-        .style("fill", "#509ec8");
+        .on("mouseenter", (m, d) => {
+            if(sync) {
+                sync.highlightY(d3.extent(d));
+            }
+        })
+        .on("mouseout", () => {
+            if(sync) {
+                sync.reset();
+            }
+        })
 }
