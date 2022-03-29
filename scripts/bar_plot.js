@@ -22,15 +22,15 @@ function bar_plot(Values, //column values to make histogram of
     // histogram function makes bins and the values for each bin
     // use xScale and number bins to calculate the bisn location and value
     let histogram = d3.histogram()
-        .value(function(d) { return d })
+        .value((d) => d )
         .domain(xScale.domain())
-        .thresholds(xScale.ticks(bins_count+1));
+        .thresholds(xScale.ticks(bins_count));
 
     let bins = histogram(Values);
 
     // y will represent number of elements inside each bin!
     let yScale= d3.scaleLinear()
-        .domain([0,d3.max(bins,function(d) { return d.length; })])
+        .domain([0,d3.max(bins, (d) => d.length)])
         .range([height,0]);
 
     // pass the bins and plot them
@@ -41,7 +41,7 @@ function bar_plot(Values, //column values to make histogram of
         .attr("class","bars")
         .attr("transform", d => `translate(${xScale(d.x0)} ,${yScale(d.length)} )`)
         .append('rect')
-        .attr("width", d => (width-margin)/(bins_count))
+        .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
         .attr("height", d => height - yScale(d.length))
         .style("fill", "#509ec8");
 }
@@ -70,16 +70,26 @@ function h_bar_plot(Values, //column values to make histogram of
 
     // step 2 get the histogram data
     let histogram = d3.histogram()
-        .value(function(d) { return d })
+        .value((d) => d )
         .domain(yScale.domain())
-        .thresholds(yScale.ticks(bins_count+1));
+        .thresholds(yScale.ticks(bins_count));
 
     // step 3 use the data to calculate histogram bin values
     let bins = histogram(Values);
+
     // step 4, now that we have the  bins and their numbers we can make the xscale
     let xScale = d3.scaleLinear()
-        .domain([0,d3.max(bins,function (d){return d.length})])
+        .domain([0,d3.max(bins, (d) => d.length)])
         .range([0,width])
+
+    const ycoords = d3.map(bins, (b) =>{
+        return {
+            x0: b.x0,
+            x1: b.x1,
+            y0: yScale(b.x0),
+            y1: yScale(b.x1)
+        }
+    })
 
     // now that we have the scales let us add the bars to the svg
     axis.selectAll('.bars')
@@ -87,9 +97,9 @@ function h_bar_plot(Values, //column values to make histogram of
         .enter()
         .append("g")        // add one group per bar, shift it to position of bar
         .attr("class","bars")
-        .attr("transform", (d,i) => `translate(${0} ,${yScale(d.x0)} )`)
+        .attr("transform", (d,i) => `translate(${0} ,${yScale(d.x1)} )`)
         .append('rect') // width of the bar is equal to the length of elements in the bin
         .attr("width", d => xScale(d.length))
-        .attr("height", (height)/bins_count*.50) // static bar thickness!
+        .attr("height", d => yScale(d.x0) - yScale(d.x1) - 1)
         .style("fill", "#509ec8");
 }
